@@ -25,6 +25,9 @@ Add-PnPField -DisplayName ATU -InternalName ATU -List $list -Type Text -AddToDef
 # Territory
 Add-PnPField -DisplayName Territory -InternalName Territory -List $list -Type Text -AddToDefaultView
 
+# Vertical
+Add-PnPField -DisplayName Vertical -InternalName Vertical -List $list -Type Text -AddToDefaultView
+
 # State/Province
 Add-PnPField -DisplayName "State" -InternalName "State" -List $list -Type Text -AddToDefaultView
 
