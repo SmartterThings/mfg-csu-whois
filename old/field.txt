@@ -1,0 +1,30 @@
+<Field 
+    DisplayName="CSAM" 
+    Format="Dropdown" 
+    IsModern="TRUE" 
+    List="UserInfo" 
+    Mult="TRUE" 
+    Name="CSAM" 
+    StaticName="CSAMs" 
+    Title="CSAM" 
+    Type="UserMulti" 
+    UserDisplayOptions="NamePhoto" 
+    UserSelectionMode="0" 
+    UserSelectionScope="0" 
+    />
+
+<Field 
+    DisplayName="CSAM" 
+    Format="Dropdown" 
+    IsModern="TRUE" 
+    ID="{3a6091de-45e5-4022-be96-9f78d833d507}" 
+    List="UserInfo" 
+    Mult="TRUE" 
+    Name="CSAM" 
+    ShowField="Display Name" 
+    StaticName="CSAM" 
+    Type="UserMulti" 
+    UserDisplayOptions="NamePhoto" 
+    UserSelectionMode="0" 
+    UserSelectionScope="0" 
+    />

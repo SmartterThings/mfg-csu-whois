@@ -1,7 +1,16 @@
-$SITE_URL = "https://microsoft.sharepoint.com/teams/MFGCustomerSuccessManagers"
-$SITE_URL = "https://microsoft.sharepoint.com/teams/Rivendell"
-$LIST_NAME = "MFG_CSU_MASTER_ACCOUNT"
-$FIELD_PREFIX = "mfg_"
+param(
+    [switch] $Force
+)
+
+Import-Module (Resolve-Path -Relative ".\lib\shared.psm1") -Force -NoClobber
+
+$SETTINGS = Get-Settings
+$LIST_NAME = $SETTINGS.ListName
+
+if ( $Force -eq $true ) {
+    Remove-PnPList -Identity $LIST_NAME -ErrorAction Ignore | Out-Null
+}
+
 
 $list = New-PnPList -Title $LIST_NAME -Template GenericList -Url "Lists/$LIST_NAME"
 
@@ -15,7 +24,7 @@ Set-PnPField -List $list -Identity Title -Values @{ Title = "TPName"}
 # TPID
 Add-PnPField -DisplayName "TPID" -InternalName "TPID" -Type Text -List $list -AddToDefaultView 
 
-# Index TPID and enforce required &uniqueness
+# Index TPID and enforce required & uniqueness
 Set-PnPField -List $list -Identity TPID -Values @{ Indexed = $true; Required = $true }
 Set-PnPField -List $list -Identity TPID -Values @{ EnforceUniqueValues = $true }
 
@@ -47,20 +56,9 @@ Add-PnPField -DisplayName "iCSM" -InternalName "iCSM" -List $list -Type User -Ad
 Add-PnPField -DisplayName "Voice CSM" -InternalName "VoiceCSM" -List $list -Type User -AddToDefaultView
 
 # App/Plat CSM
-Add-PnPField -DisplayName "App CSM" -InternalName "AppCSM" -List $list -Type User -AddToDefaultView
+Add-PnPField -DisplayName "App CSM" -InternalName "AppCSM" -List $list -Type User -AddToDefaultView 
 
 # CSAM: Multi-User fields must use XML for options.
-$xml = @'
-<Field 
-    Type="UserMulti" 
-    DisplayName="CSAM" 
-    List="UserInfo" 
-    Required="FALSE" 
-    ID="{3a6091de-45e5-4022-be96-9f78d833d507}" 
-    ShowField="Display Name" 
-    UserSelectionMode="PeopleOnly" 
-    StaticName="CSAM" 
-    Name="CSAM" 
-    Mult="TRUE" />
-'@
-Add-PnPFieldFromXml -List $list -FieldXml $xml
+Add-SpoMultiUserField -List $list -Name CSAM -AddToDefaultView $true
+
+Add-PnPField -List $list -DisplayName SysIndex -Type Note -InternalName Note
