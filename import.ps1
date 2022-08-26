@@ -6,7 +6,7 @@ param(
     [switch] $Overwrite,
 
     [Parameter(HelpMessage="Array of field names to read from the InputFile. NOTE: Fields NOT specified will not be imported.")]
-    [array] $FieldNames = ("TPID", "Title", "State", "Vertical"),
+    [array] $FieldNames = ("TPID", "Title", "State", "Vertical", "ATU", "Territory", "CSM", "iCSM", "VoiceCSM", "AppCSM"),
 
     [Parameter(HelpMessage="The field that will serve as the Primary Key for the row.")]
     $PrimaryKeyFieldName = "TPID",
@@ -30,6 +30,7 @@ Get-Content -Path $InputFile | ConvertFrom-Csv | ForEach-Object {
     $PrimaryKeyValue = $null
     $FieldValues = @{}
 
+    # PnP SharePoint APIs expect hashtables, not PSObjects
     $_.PSObject.Properties | ForEach-Object {
         # Primary key
         if ($_.Name -eq $PrimaryKeyField) {
@@ -46,24 +47,39 @@ Get-Content -Path $InputFile | ConvertFrom-Csv | ForEach-Object {
     Write-Host -ForegroundColor White ($_.Title) -NoNewline;
     Write-Host -ForegroundColor Blue "'...";
     
-    $Err = $null
-    $ListItem = Add-PnPListItem -List $SpoList -Values $FieldValues -ErrorVariable Err -ErrorAction SilentlyContinue
-    If ( ( $Err -Join "").Contains("TPID") ) {
-        Write-Host -ForegroundColor Yellow "List item '" -NoNewline
+    $ErrVariable = $null
+    $WasCreatedOrUpdated = $false
+    $SpoListItem = Add-PnPListItem -List $SpoList -Values $FieldValues -ErrorVariable Err -ErrorAction SilentlyContinue
+
+    # Did we error trying to create an item that already existed?
+    If ( ( $ErrVariable -Join "").Contains($PrimaryKeyFieldName) ) {
+        Write-Host -ForegroundColor Yellow "⚠️  List item '" -NoNewline
         Write-Host -ForegroundColor White ($_.Title) -NoNewline;
         Write-Host -ForegroundColor Yellow "' already exists.";
 
         if ( $Overwrite -eq $true ) {
-            Update-SpoListItemByPrimaryKey -List $SpoList -PrimaryKeyFieldValue $_.TPID -FieldValues $FieldValues
+            Update-SpoListItemByPrimaryKey -List $SpoList -PrimaryKeyFieldValue $_.TPID -Values $FieldValues
+
+            Write-Host -ForegroundColor Green "🟢 Overwrite specified, so updated list item '" -NoNewline
+            Write-Host -ForegroundColor White ($_.Title) -NoNewline;
+            Write-Host -ForegroundColor Green "'...";
+            $WasCreatedOrUpdated = $true
         }
     } else {
-        Write-Host -ForegroundColor Green "$RowNumber) Created list item '" -NoNewline
+        Write-Host -ForegroundColor Green "🟢 Created list item '" -NoNewline
         Write-Host -ForegroundColor White ($_.Title) -NoNewline;
         Write-Host -ForegroundColor Green "'...";
+        $WasCreatedOrUpdated = $true
     }
 
+    # Print out hashtable if data was udpated/created
+    If ( $WasCreatedOrUpdated -eq $true ) {
+        Write-Host ( ConvertTo-Json $FieldValues )
+    }
+
+    # For testing/debugging - Stop after N number of updates.
     If ( $MaxRows -gt 0 -and $RowNumber -eq $MaxRows) { 
-        Write-Host -ForegroundColor Blue "Exiting because max number of rows ($MaxRows) reached."
+        Write-Host -ForegroundColor Yellow "🛑 Exiting because max number of rows ($MaxRows) reached."
         Exit 
     }
 }

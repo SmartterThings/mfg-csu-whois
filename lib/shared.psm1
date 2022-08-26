@@ -24,8 +24,8 @@ Function Add-SpoMultiUserField {
 }
 
 
-Update-SpoListItemByPrimaryKey {
-    params(
+Function Update-SpoListItemByPrimaryKey {
+    param(
         [Parameter(Mandatory = $true)]
         [string] $PrimaryKeyFieldValue,
 
@@ -36,14 +36,14 @@ Update-SpoListItemByPrimaryKey {
         $PrimaryKeyFieldName = "TPID",
 
         [Parameter(Mandatory=$true)]
-        $FieldValues
+        $Values
     )
 
     $Query = "<View><Query><Where><Eq><FieldRef Name='" + $PrimaryKeyFieldName + "'/><Value Type='Text'>" + $PrimaryKeyFieldValue + "</Value></Eq></Where></Query></View>"
 
     $SpoListItem = Get-PnPListItem -Query $Query -List $List
 
-    Set-PnPListItem -Identity $SpoListItem.Id -List $list -Values $FieldValues
+    Set-PnPListItem -Identity $SpoListItem.Id -List $list -Values $Values | Out-Null
 }
 
 Export-ModuleMember Get-Settings
