@@ -1,0 +1,1 @@
+Connect-PnPOnline -Url https://microsoft.sharepoint.com/teams/Rivendell -UseWebLogin
