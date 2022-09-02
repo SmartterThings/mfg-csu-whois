@@ -1,18 +1,29 @@
 param(
 
     [Parameter(HelpMessage = "Array of field names to index.")]
-    [array] $FieldNames = ("CSM", "iCSM", "VoiceCSM", "AppCSM"),
+    [array] $FieldNames = ("CSM", "iCSM", "VoiceCSM", "AppCSM", "CSAM"),
 
     $MaxRows = -1
 )
 
 Function Get-IndexedFieldValue {
     Param(
-        $FieldValue
+        $ListItem,
+        $FieldName
     )
 
-    Write-Output ($FieldValue.LookupValue, $FieldValue.Email -Join " - " );
+    $FieldValue = $ListItem.FieldValues[$FieldName];
+    If ( $FieldName -ne "CSAM") {
+        Write-Output ($FieldValue.LookupValue, $FieldValue.Email -Join " - " );
+    } else {
+        $Buffer = ""
+        For ($i = 0; $i -le $FieldValue.length; $i++) {
+            $Buffer += ($FieldValue[$i].LookupValue, " - ", $FieldValue[$i].Email, -Join "`n" );
+            #Write-Host $FieldValue[$i].LookupValue
+        }
 
+        Write-Output $Buffer 
+    }
 }
 
 Import-Module (Resolve-Path -Relative ".\lib\shared.psm1") -Force -NoClobber
@@ -37,7 +48,7 @@ $SpoListItems | ForEach-Object {
     $SpoListItem = $_;
 
     $FieldNames | ForEach-Object {
-        $SysUserIndexValues += Get-IndexedFieldValue -FieldValue $SpoListItem.FieldValues[$_];
+        $SysUserIndexValues += Get-IndexedFieldValue -ListItem $SpoListItem -FieldName $_ # -FieldValue $SpoListItem.FieldValues[$_];
     }
      
     $IndexedFieldValue = @{ "SysUserIndex" = $SysUserIndexValues -Join "`n" }
@@ -47,7 +58,7 @@ $SpoListItems | ForEach-Object {
     Write-Host -ForegroundColor Blue "'...";
     Write-Host ( ConvertTo-Json $IndexedFieldValue )
 
-    Set-PnPListItem -List $SpoList -Identity $SpoListItem.Id -Values $IndexedFieldValue | Out-Null
+    #Set-PnPListItem -List $SpoList -Identity $SpoListItem.Id -Values $IndexedFieldValue | Out-Null
     
 
     # For testing/debugging - Stop after N number of updates.

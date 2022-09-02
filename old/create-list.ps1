@@ -37,14 +37,8 @@ Add-PnPField -DisplayName Territory -InternalName Territory -List $list -Type Te
 # Vertical
 Add-PnPField -DisplayName Vertical -InternalName Vertical -List $list -Type Text -AddToDefaultView
 
-# City
-Add-PnPField -DisplayName "City" -InternalName "City" -List $list -Type Text -AddToDefaultView
-
 # State/Province
 Add-PnPField -DisplayName "State" -InternalName "State" -List $list -Type Text -AddToDefaultView
-
-# Postal Code
-Add-PnPField -DisplayName "PostalCode" -InternalName "PostalCode" -List $list -Type Text -AddToDefaultView
 
 # Account Executive
 Add-PnPField -DisplayName "AE" -InternalName "AE" -List $list -Type User -AddToDefaultView
@@ -67,6 +61,6 @@ Add-PnPField -DisplayName "App CSM" -InternalName "AppCSM" -List $list -Type Use
 # CSAM: Multi-User fields must use XML for options.
 Add-SpoMultiUserField -List $list -Name CSAM -AddToDefaultView $true
 
-Add-PnPField -List $list -DisplayName Keywords -Type Note -InternalName Keywords -AddToDefaultView
-
 Add-PnPField -List $list -DisplayName SysIndex -Type Note -InternalName SysIndex -AddToDefaultView
+
+Add-PnPField -List $list -DisplayName SysUserIndex -Type Note -InternalName SysUserIndex -AddToDefaultView
